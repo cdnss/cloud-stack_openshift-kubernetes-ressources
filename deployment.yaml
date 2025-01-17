@@ -1,19 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-boot-app-deployment
+  name: ubuntu-vnc
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: spring-boot-app
-  replicas: 1
+      app: ubuntu-vnc
   template:
     metadata:
       labels:
-        app: spring-boot-app
+        app: ubuntu-vnc
     spec:
       containers:
-      - name: spring-boot-app
-        image: pmgysel/spring-boot-app:0.0.1
+      - name: ubuntu-vnc
+        image: dorowu/ubuntu-desktop-lxde-vnc
         ports:
-        - containerPort: 8080
+        - containerPort: 5900 # Port VNC
+        - containerPort: 8080 # Port noVNC (web)
+        securityContext: # Penting untuk OpenShift
+          privileged: false # Sebaiknya false jika memungkinkan
+          runAsUser: 1000 # User non-root
+          capabilities:
+            drop:
+              - ALL
+        resources: # Atur resource sesuai kebutuhan
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
